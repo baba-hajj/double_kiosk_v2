@@ -1,0 +1,68 @@
+* Double Kiosk System
+
+** Description
+
+*** Software Components:
+- *Operating System*: Raspbian Pi OS 64-bit (Trixie)
+- *Video System*: X11 with Multi-Pointer X (MPX)
+- *Virtual X Servers*: Xephyr
+- *Video Mode*: 1920x1080 (full screen)
+- *Input Management*: Independent touchscreen cursors per display
+
+*** Functionality
+Upon powering on, the kiosk connects to the designated URL, which is displayed on both monitors at full screen. Users can navigate the kiosk site via touchscreen with independent control.
+
+The kiosk supports dual users simultaneously with TRUE INDEPENDENCE:
+- Each user has their own dedicated cursor
+- Touch on left screen controls only left display
+- Touch on right screen controls only right display
+- No focus stealing or interference between users
+- Fully independent browsing sessions
+
+** Setup Instructions
+1. Write the =double_kiosk_2025_10_13.img= image file to an SD card.
+2. Connect both monitors using HDMI and USB cables.
+3. Power on the device.
+
+** Configuration
+Configuration file: =/boot/firmware/kiosk_config.sh=
+
+The configuration file allows users to modify the following settings:
+- *URL*: Kiosk site URL
+- *TOUCHSCREEN_PATTERN*: Device detection pattern (auto-detects by default)
+- *ORIENTATION*: Monitor orientation (normal/right/left/inverted)
+- *ENABLE_MOUSE_EMULATION*: Enable/disable mouse devices (false = better performance)
+- *TOUCHSCREEN_LOG_LEVEL*: Logging verbosity (0-3)
+
+Note: On-screen keyboard has been removed for full-screen browsing
+
+See =SETUP_INSTRUCTIONS.md= for detailed configuration options.
+** Setup on the fresh Raspbian Pi OS
+***  Write an image on SD card Device - Raspberry Pi 5, Raspbian Pi OS 64-bit (Trixie)
+****  Connect Ethernet cable
+***  First start settings.
+***  Use English Language. Use US keyboard.
+****  Add user: pi - <Password>
+****  WiFi: Skip
+****  Default Browser: Chromium
+****  Update Software
+*** Install packages. sudo apt install xserver-xephyr onboard python3-xdg git
+***  Raspi-config
+****  /6 Advanced Options/A7 Wayland/W1 X11
+****  /1 System Options/S5 Boot/B1 Console Text console 
+****  /1 System Options/S6 Auto Login/To console - Yes
+***  git clone git@github.com:ekazanov/double_kiosk.git
+*** Copy files:
+- double_kiosk/rootfs/home/pi/.profile -> /home/pi/.profile
+- double_kiosk/rootfs/home/pi/010_run_xephyr.sh -> /home/pi/010_run_xephyr.sh
+- double_kiosk/rootfs/home/pi/010_xephyr.sh -> /home/pi/010_xephyr.sh
+- double_kiosk/rootfs/home/pi/lib/*.sh -> /home/pi/lib/ (create directory first)
+- double_kiosk/rootfs/etc/xdg/openbox/rc.xml -> /etc/xdg/openbox/rc.xml
+- double_kiosk/bootfs/kiosk_config.sh -> /boot/firmware/kiosk_config.sh
+*** Create log directory:
+- sudo mkdir -p /var/log/kiosk
+- sudo chown pi:pi /var/log/kiosk
+*** Reboot
+
+** Documentation
+See =SETUP_INSTRUCTIONS.md= for detailed setup, configuration, and troubleshooting information.
