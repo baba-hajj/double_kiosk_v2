@@ -151,6 +151,7 @@ sleep 2
 
 # Launch Chromium browsers directly on host X server
 # Browser 1: Left screen (starts at x=0)
+# Performance optimized with GPU acceleration, memory management, and kiosk flags
 DISPLAY=:0 chromium \
   --user-data-dir=/home/pi/.config/chrome-profile-1 \
   --window-position=0,0 \
@@ -159,7 +160,39 @@ DISPLAY=:0 chromium \
   --noerrdialogs \
   --disable-infobars \
   --load-extension=/home/pi/kiosk-autofill-extension \
-  --app="$URL_01" &
+  --app="$URL_01" \
+  --enable-gpu-rasterization \
+  --enable-zero-copy \
+  --enable-hardware-overlays \
+  --use-gl=egl \
+  --use-angle=gles \
+  --disable-software-rasterizer \
+  --enable-gpu-compositing \
+  --enable-smooth-scrolling \
+  --enable-native-gpu-memory-buffers \
+  --js-flags="--max-old-space-size=256" \
+  --memory-model=low \
+  --aggressive-tab-discarding \
+  --renderer-process-limit=2 \
+  --disable-background-timer-throttling \
+  --max-tiles-for-interest-area=512 \
+  --disk-cache-size=104857600 \
+  --enable-dns-prefetch \
+  --enable-async-dns \
+  --disable-background-networking \
+  --disable-component-update \
+  --disable-crash-reporter \
+  --disable-breakpad \
+  --disable-sync \
+  --disable-translate \
+  --disable-features=TranslateUI \
+  --disable-default-apps \
+  --disable-dev-tools \
+  --autoplay-policy=no-user-gesture-required \
+  --no-first-run \
+  --no-default-browser-check \
+  --disable-session-crashed-bubble \
+  --disable-restore-session-state &
 
 sleep 2
 
@@ -170,6 +203,7 @@ else
     WINDOW_X=1080
 fi
 
+# Performance optimized with GPU acceleration, memory management, and kiosk flags
 DISPLAY=:0 chromium \
   --user-data-dir=/home/pi/.config/chrome-profile-2 \
   --window-position="$WINDOW_X",0 \
@@ -178,7 +212,39 @@ DISPLAY=:0 chromium \
   --noerrdialogs \
   --disable-infobars \
   --load-extension=/home/pi/kiosk-autofill-extension \
-  --app="$URL_02" &
+  --app="$URL_02" \
+  --enable-gpu-rasterization \
+  --enable-zero-copy \
+  --enable-hardware-overlays \
+  --use-gl=egl \
+  --use-angle=gles \
+  --disable-software-rasterizer \
+  --enable-gpu-compositing \
+  --enable-smooth-scrolling \
+  --enable-native-gpu-memory-buffers \
+  --js-flags="--max-old-space-size=256" \
+  --memory-model=low \
+  --aggressive-tab-discarding \
+  --renderer-process-limit=2 \
+  --disable-background-timer-throttling \
+  --max-tiles-for-interest-area=512 \
+  --disk-cache-size=104857600 \
+  --enable-dns-prefetch \
+  --enable-async-dns \
+  --disable-background-networking \
+  --disable-component-update \
+  --disable-crash-reporter \
+  --disable-breakpad \
+  --disable-sync \
+  --disable-translate \
+  --disable-features=TranslateUI \
+  --disable-default-apps \
+  --disable-dev-tools \
+  --autoplay-policy=no-user-gesture-required \
+  --no-first-run \
+  --no-default-browser-check \
+  --disable-session-crashed-bubble \
+  --disable-restore-session-state &
 
 sleep 3
 
