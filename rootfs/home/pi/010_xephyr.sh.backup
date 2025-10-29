@@ -74,40 +74,35 @@ else
     done
 fi
 
-# Start OpenBox window manager on host X server
-DISPLAY=:0 openbox-session --config-file /etc/xdg/openbox/rc.xml &
+# Start Xephyr sessions
+Xephyr :1 -screen "$SCR_W"x"$SCR_H"+0+0 -origin 0,0 -br -ac -noreset &
+Xephyr :2 -screen "$SCR_W"x"$SCR_H"+1920+0 -origin 0,0 -br -ac -noreset &
 
 sleep 2
 
-# Launch Chromium browsers directly on host X server
-# Browser 1: Left screen (starts at x=0)
-DISPLAY=:0 chromium \
+# Start Openbox + apps in each
+DISPLAY=:1 openbox-session --config-file /etc/xdg/openbox/rc.xml &
+sleep 2
+DISPLAY=:1 chromium \
   --user-data-dir=/home/pi/.config/chrome-profile-1 \
   --window-position=0,0 \
   --window-size="$SCR_W","$CHR_H" \
-  --kiosk \
   --noerrdialogs \
   --disable-infobars \
   --incognito \
   --app="$URL_01" &
+# On-screen keyboard removed - use physical keyboard if needed
 
+DISPLAY=:2 openbox-session --config-file /etc/xdg/openbox/rc.xml &
 sleep 2
-
-# Browser 2: Right screen (starts at x=1920 for landscape, adjusts for portrait)
-if [[ "$ORIENTATION" == "normal" || "$ORIENTATION" == "inverted" ]]; then
-    WINDOW_X=1920
-else
-    WINDOW_X=1080
-fi
-
-DISPLAY=:0 chromium \
+DISPLAY=:2 chromium \
   --user-data-dir=/home/pi/.config/chrome-profile-2 \
-  --window-position="$WINDOW_X",0 \
+  --window-position=0,0 \
   --window-size="$SCR_W","$CHR_H" \
-  --kiosk \
   --noerrdialogs \
   --disable-infobars \
   --incognito \
   --app="$URL_02" &
+# On-screen keyboard removed - use physical keyboard if needed
 
 wait
