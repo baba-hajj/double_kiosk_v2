@@ -1,0 +1,63 @@
+# Boot Config HDMI Fix (Optional - if software retry doesn't work)
+# Add these lines to /boot/firmware/config.txt if HDMI-1 still not detecting
+
+# ============================================================
+# FORCE HDMI DETECTION FOR DUAL DISPLAYS
+# ============================================================
+
+# Force HDMI hotplug detection (makes Pi think HDMI is always connected)
+hdmi_force_hotplug:0=1  # Force HDMI-1
+hdmi_force_hotplug:1=1  # Force HDMI-2
+
+# Force HDMI drive mode (2 = Normal HDMI mode with sound)
+hdmi_drive:0=2          # HDMI-1 normal mode
+hdmi_drive:1=2          # HDMI-2 normal mode
+
+# Set HDMI group (2 = DMT - computer monitor timings)
+hdmi_group:0=2          # HDMI-1 uses DMT
+hdmi_group:1=2          # HDMI-2 uses DMT
+
+# Set specific HDMI mode (82 = 1920x1080@60Hz)
+hdmi_mode:0=82          # HDMI-1 resolution
+hdmi_mode:1=82          # HDMI-2 resolution
+
+# Boost HDMI signal (can help with long cables or finicky monitors)
+# Values: 0-11, default is 5. Try 7 if you have issues.
+# config_hdmi_boost:0=7   # Boost HDMI-1 signal
+# config_hdmi_boost:1=7   # Boost HDMI-2 signal
+
+# ============================================================
+# HOW TO APPLY
+# ============================================================
+
+# 1. SSH into Raspberry Pi:
+#    ssh pi@<raspberry-pi-ip>
+
+# 2. Edit boot config:
+#    sudo nano /boot/firmware/config.txt
+
+# 3. Scroll to bottom and add the lines above
+
+# 4. Save and exit:
+#    Ctrl+X, then Y, then Enter
+
+# 5. Reboot:
+#    sudo reboot
+
+# ============================================================
+# NOTES
+# ============================================================
+
+# On Raspberry Pi 4/5:
+#   :0 suffix = HDMI-1 (port closest to USB-C power)
+#   :1 suffix = HDMI-2 (port closest to USB ports)
+
+# HDMI Mode Reference (for hdmi_mode):
+#   82 = 1920x1080@60Hz (most common)
+#   16 = 1920x1080@60Hz (alternative)
+#   4  = 1280x720@60Hz
+#   85 = 1280x720@60Hz
+#   See full list: https://www.raspberrypi.com/documentation/computers/config_txt.html
+
+# Only use these settings if the software retry logic in 010_xephyr.sh
+# doesn't solve the detection issue.

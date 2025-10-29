@@ -28,10 +28,80 @@ CHR_H=$SCR_H
 sleep 2
 
 # -----------------------------------------------------------
-# 1️⃣ Configure monitors
+# 1️⃣ Configure monitors with detection retry
 # -----------------------------------------------------------
-xrandr --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate "$ORIENTATION" --primary
-xrandr --output HDMI-2 --mode 1920x1080 --pos 1920x0 --rotate "$ORIENTATION"
+
+# Function to detect and configure displays
+configure_displays() {
+    local max_attempts=10
+    local attempt=1
+    local hdmi1_found=false
+    local hdmi2_found=false
+
+    echo "Detecting displays..."
+
+    while [ $attempt -le $max_attempts ]; do
+        echo "Attempt $attempt/$max_attempts: Checking for displays..."
+
+        # Check if HDMI-1 is connected
+        if DISPLAY=:0 xrandr | grep -q "^HDMI-1 connected"; then
+            hdmi1_found=true
+            echo "  ✓ HDMI-1 detected"
+        else
+            echo "  ✗ HDMI-1 not detected"
+        fi
+
+        # Check if HDMI-2 is connected
+        if DISPLAY=:0 xrandr | grep -q "^HDMI-2 connected"; then
+            hdmi2_found=true
+            echo "  ✓ HDMI-2 detected"
+        else
+            echo "  ✗ HDMI-2 not detected"
+        fi
+
+        # If both displays found, configure them
+        if [ "$hdmi1_found" = true ] && [ "$hdmi2_found" = true ]; then
+            echo "Both displays detected! Configuring..."
+
+            # Configure HDMI-1 (primary, left screen)
+            DISPLAY=:0 xrandr --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate "$ORIENTATION" --primary
+            sleep 1
+
+            # Configure HDMI-2 (secondary, right screen)
+            DISPLAY=:0 xrandr --output HDMI-2 --mode 1920x1080 --pos 1920x0 --rotate "$ORIENTATION"
+            sleep 1
+
+            echo "Display configuration complete"
+            return 0
+        fi
+
+        # If not found, wait and retry
+        echo "Waiting for displays... (${attempt}s)"
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+
+    # If we get here, one or both displays weren't detected
+    echo "WARNING: Display detection incomplete after $max_attempts attempts"
+    echo "  HDMI-1: $hdmi1_found"
+    echo "  HDMI-2: $hdmi2_found"
+
+    # Try to configure whatever we found
+    if [ "$hdmi1_found" = true ]; then
+        echo "Configuring HDMI-1 only..."
+        DISPLAY=:0 xrandr --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate "$ORIENTATION" --primary
+    fi
+
+    if [ "$hdmi2_found" = true ]; then
+        echo "Configuring HDMI-2 only..."
+        DISPLAY=:0 xrandr --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate "$ORIENTATION" --primary
+    fi
+
+    return 1
+}
+
+# Run display configuration
+configure_displays
 
 # -----------------------------------------------------------
 # 1️⃣ Configure touchscreen inputs with Multi-Pointer X (MPX)
