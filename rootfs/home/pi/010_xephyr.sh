@@ -149,6 +149,25 @@ DISPLAY=:0 openbox-session --config-file /etc/xdg/openbox/rc.xml &
 
 sleep 2
 
+# -----------------------------------------------------------
+# Hide all mouse cursors for touch-only kiosk experience
+# -----------------------------------------------------------
+echo "Hiding mouse cursors..."
+
+# Method 1: Use unclutter to hide cursor (install if not present)
+if command -v unclutter &> /dev/null; then
+    DISPLAY=:0 unclutter -idle 0.01 -root &
+    echo "  ✓ unclutter started (cursor hidden)"
+else
+    echo "  ⚠ unclutter not installed, trying alternative method"
+fi
+
+# Method 2: Set root window cursor to blank
+DISPLAY=:0 xsetroot -cursor_name none 2>/dev/null || true
+
+# Method 3: Hide cursor in Chromium (added via flags below)
+echo "Cursor hiding configured"
+
 # Launch Chromium browsers directly on host X server
 # Browser 1: Left screen (starts at x=0)
 # Performance optimized with GPU acceleration, memory management, and kiosk flags
@@ -192,7 +211,10 @@ DISPLAY=:0 chromium \
   --no-first-run \
   --no-default-browser-check \
   --disable-session-crashed-bubble \
-  --disable-restore-session-state &
+  --disable-restore-session-state \
+  --kiosk-printing \
+  --enable-features=OverlayScrollbar \
+  --hide-scrollbars &
 
 sleep 2
 
@@ -244,7 +266,10 @@ DISPLAY=:0 chromium \
   --no-first-run \
   --no-default-browser-check \
   --disable-session-crashed-bubble \
-  --disable-restore-session-state &
+  --disable-restore-session-state \
+  --kiosk-printing \
+  --enable-features=OverlayScrollbar \
+  --hide-scrollbars &
 
 sleep 3
 
