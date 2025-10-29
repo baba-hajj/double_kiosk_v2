@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Kiosk Password Autofill",
+  "version": "1.0.0",
+  "description": "Automatically fills the password field for kiosk login",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["https://kiosk.iheartjane.com/*"],
+      "js": ["autofill.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

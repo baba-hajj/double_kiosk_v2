@@ -224,6 +224,41 @@ disable_mouse_emulation() {
     return 0
 }
 
+# Fix keyboard routing for MPX compatibility
+# Ensures physical keyboards work in all windows regardless of pointer focus
+fix_keyboard_routing() {
+    log_info "Configuring keyboard routing for MPX compatibility..."
+
+    # Find all physical keyboard devices (exclude virtual/pointer devices)
+    local keyboard_ids=$(DISPLAY=:0 xinput list 2>/dev/null | \
+                        grep -i "keyboard" | \
+                        grep -v "Virtual core\|Kiosk.*keyboard\|pointer" | \
+                        grep -oP 'id=\K\d+' || echo "")
+
+    if [ -z "$keyboard_ids" ]; then
+        log_warn "No physical keyboard devices found"
+        return 0
+    fi
+
+    log_info "Found physical keyboard device(s): $keyboard_ids"
+
+    # Reattach all physical keyboards to Virtual core keyboard
+    # This ensures they work in all windows regardless of MPX pointer focus
+    for kb_id in $keyboard_ids; do
+        local kb_name=$(DISPLAY=:0 xinput list --name-only "$kb_id" 2>/dev/null || echo "unknown")
+        log_info "Attaching keyboard $kb_id ($kb_name) to Virtual core keyboard"
+
+        if DISPLAY=:0 xinput reattach "$kb_id" "Virtual core keyboard" 2>/dev/null; then
+            log_info "Successfully attached keyboard $kb_id to Virtual core"
+        else
+            log_warn "Could not reattach keyboard $kb_id (may already be attached)"
+        fi
+    done
+
+    log_info "Keyboard routing configuration complete"
+    return 0
+}
+
 # Map touch devices to their respective displays
 map_to_displays() {
     log_info "Mapping touch devices to displays..."
@@ -317,16 +352,19 @@ setup_touchscreens_mpx() {
         return 1
     }
 
-    # Step 6: Map to displays
+    # Step 6: Fix keyboard routing for MPX compatibility
+    fix_keyboard_routing
+
+    # Step 7: Map to displays
     map_to_displays || {
         log_error "Display mapping failed"
         return 1
     }
 
-    # Step 7: Disable mouse emulation (performance optimization)
+    # Step 8: Disable mouse emulation (performance optimization)
     disable_mouse_emulation
 
-    # Step 8: Validate setup
+    # Step 9: Validate setup
     validate_mpx_setup || {
         log_warn "MPX validation failed, but continuing anyway"
     }

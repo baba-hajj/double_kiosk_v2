@@ -88,7 +88,7 @@ DISPLAY=:0 chromium \
   --kiosk \
   --noerrdialogs \
   --disable-infobars \
-  --incognito \
+  --load-extension=/home/pi/kiosk-autofill-extension \
   --app="$URL_01" &
 
 sleep 2
@@ -107,7 +107,7 @@ DISPLAY=:0 chromium \
   --kiosk \
   --noerrdialogs \
   --disable-infobars \
-  --incognito \
+  --load-extension=/home/pi/kiosk-autofill-extension \
   --app="$URL_02" &
 
 wait
