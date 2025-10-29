@@ -110,4 +110,27 @@ DISPLAY=:0 chromium \
   --load-extension=/home/pi/kiosk-autofill-extension \
   --app="$URL_02" &
 
+sleep 3
+
+# Configure keyboard focus for MPX compatibility
+# Ensures Chromium windows accept keyboard input from Virtual core keyboard
+echo "Configuring keyboard input for browsers..."
+
+# Find all Chromium windows
+CHROMIUM_WINDOWS=$(DISPLAY=:0 xdotool search --sync --onlyvisible --class "Chromium" 2>/dev/null || echo "")
+
+if [ -n "$CHROMIUM_WINDOWS" ]; then
+    for window_id in $CHROMIUM_WINDOWS; do
+        # Set client pointer to Virtual core pointer (id=2) for each window
+        # This ensures the window accepts input from Virtual core keyboard
+        DISPLAY=:0 xinput set-client-pointer "$window_id" 2 2>/dev/null || true
+
+        # Give window focus
+        DISPLAY=:0 xdotool windowfocus --sync "$window_id" 2>/dev/null || true
+    done
+    echo "Configured keyboard input for $(echo "$CHROMIUM_WINDOWS" | wc -w) browser window(s)"
+else
+    echo "Warning: No Chromium windows found yet"
+fi
+
 wait
